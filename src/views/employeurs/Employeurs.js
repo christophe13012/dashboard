@@ -677,13 +677,13 @@ const Employeurs = () => {
         <>
           <CRow>
             <CCol xs={6}>
-              <div className="mt-4">Nombre extras inscrits : {extrasSemaine.length}</div>
+              <div className="mt-4">Nombre employeurs inscrits : {extrasSemaine.length}</div>
             </CCol>
           </CRow>
           <CRow>
             <CCol xs={6}>
               <CCard className="mb-4 mt-4">
-                <CCardHeader>Extras inscrits par catégorie</CCardHeader>
+                <CCardHeader>Employeurs inscrits par catégorie</CCardHeader>
                 <CCardBody>
                   <CChartDoughnut
                     data={{
@@ -872,13 +872,13 @@ const Employeurs = () => {
         <>
           <CRow>
             <CCol xs={6}>
-              <div className="mt-4">Nombre extras inscrits : {extrasMois.length}</div>
+              <div className="mt-4">Nombre employeurs inscrits : {extrasMois.length}</div>
             </CCol>
           </CRow>
           <CRow>
             <CCol xs={6}>
               <CCard className="mb-4 mt-4">
-                <CCardHeader>Extras inscrits par catégorie</CCardHeader>
+                <CCardHeader>Employeurs inscrits par catégorie</CCardHeader>
                 <CCardBody>
                   <CChartDoughnut
                     data={{
@@ -1066,13 +1066,13 @@ const Employeurs = () => {
         <>
           <CRow>
             <CCol xs={6}>
-              <div className="mt-4">Nombre extras inscrits : {extrasAll.length}</div>
+              <div className="mt-4">Nombre employeurs inscrits : {extrasAll.length}</div>
             </CCol>
           </CRow>
           <CRow>
             <CCol xs={6}>
               <CCard className="mb-4 mt-4">
-                <CCardHeader>Extras inscrits par catégorie</CCardHeader>
+                <CCardHeader>Employeurs inscrits par catégorie</CCardHeader>
                 <CCardBody>
                   <CChartDoughnut
                     data={{
