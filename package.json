@@ -1,7 +1,7 @@
 {
-  "name": "UNEXTRA BACKEND",
+  "name": "unextradashboard",
   "version": "4.0.0",
-  "description": "UNEXTRA BACKEND",
+  "description": "dashboard",
   "homepage": "https://christophe13012.github.io/dashboard",
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"

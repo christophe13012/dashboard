@@ -8,6 +8,7 @@ import { CNav, CNavItem, CNavLink, CCol, CCard, CCardHeader, CCardBody, CRow } f
 import { CChartDoughnut } from '@coreui/react-chartjs'
 
 import { getDatabase, ref, onValue } from 'firebase/database'
+import { departement } from 'src/utils/utils.js'
 
 export const GRAPHQL_ENDPOINT = 'https://unextra.hasura.app/v1/graphql'
 export const GRAPHQL_SUBSCRIPTIONS = 'wss://unextra.hasura.app/v1/graphql'
@@ -34,6 +35,10 @@ const ExtrasPro = () => {
   const [extrasAll, setExtrasAll] = useState([])
   const [extrasAllCat, setExtrasAllCat] = useState([])
   const [extrasAllJob, setExtrasAllJob] = useState([])
+  const [extras24Dep, setExtras24Dep] = useState([])
+  const [extrasSemaineDep, setExtrasSemaineDep] = useState([])
+  const [extrasMoisDep, setExtrasMoisDep] = useState([])
+  const [extrasAllDep, setExtrasAllDep] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -68,6 +73,7 @@ const ExtrasPro = () => {
                 idExtra
                 category
                 gender
+                postalCode
                 company {
                   id
                   latitude
@@ -152,6 +158,36 @@ const ExtrasPro = () => {
               group[category].push(product)
               return group
             }, {})
+            const groupBydep24 = usersInWork24.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+            const groupBydepSemaine = usersInWorkSemaine.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepMois = usersInWorkMois.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepAll = usersInWorkAll.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
             const groupByCategoryMois = usersInWorkMois.reduce((group, product) => {
               const { category } = product
               group[category] = group[category] ?? []
@@ -196,6 +232,10 @@ const ExtrasPro = () => {
             setExtrasMoisCat(groupByCategoryMois)
             setExtrasAllJob(groupByJobAll)
             setExtrasAllCat(groupByCategoryAll)
+            setExtras24Dep(groupBydep24)
+            setExtrasSemaineDep(groupBydepSemaine)
+            setExtrasMoisDep(groupBydepMois)
+            setExtrasAllDep(groupBydepAll)
           })
         })
       setTimeout(() => {
@@ -295,74 +335,111 @@ const ExtrasPro = () => {
             </CCol>
           </CRow>
           {extras24.length > 0 && (
-            <CRow>
-              <CCol xs={6}>
-                <CCard className="mb-4 mt-4">
-                  <CCardHeader>Extras pro inscrits par catégorie</CCardHeader>
-                  <CCardBody>
-                    <CChartDoughnut
-                      data={{
-                        labels: Object.keys(extras24Cat),
-                        datasets: [
-                          {
-                            backgroundColor: [
-                              '#41B883',
-                              '#E46651',
-                              '#00D8FF',
-                              '#DD1B16',
-                              '#FF0000',
-                              '#800000',
-                              '#808000',
-                              '#00FF00',
-                              '#008000',
-                              '#808080',
-                              '#0000FF',
-                              '#000080',
-                              '#FF00FF',
-                              '#800080',
-                            ],
-                            data: Object.values(extras24Cat).map((x) => x.length),
-                          },
-                        ],
-                      }}
-                    />
-                  </CCardBody>
-                </CCard>
-              </CCol>
-              <CCol xs={6}>
-                <CCard className="mb-4 mt-4">
-                  <CCardHeader>Extras pro inscrits par job</CCardHeader>
-                  <CCardBody>
-                    <CChartDoughnut
-                      data={{
-                        labels: Object.keys(extras24Job),
-                        datasets: [
-                          {
-                            backgroundColor: [
-                              '#41B883',
-                              '#E46651',
-                              '#00D8FF',
-                              '#DD1B16',
-                              '#FF0000',
-                              '#800000',
-                              '#808000',
-                              '#00FF00',
-                              '#008000',
-                              '#808080',
-                              '#0000FF',
-                              '#000080',
-                              '#FF00FF',
-                              '#800080',
-                            ],
-                            data: Object.values(extras24Job).map((x) => x.length),
-                          },
-                        ],
-                      }}
-                    />
-                  </CCardBody>
-                </CCard>
-              </CCol>
-            </CRow>
+            <>
+              <CRow>
+                <CCol xs={6}>
+                  <CCard className="mb-4 mt-4">
+                    <CCardHeader>Extras pro inscrits par catégorie</CCardHeader>
+                    <CCardBody>
+                      <CChartDoughnut
+                        data={{
+                          labels: Object.keys(extras24Cat),
+                          datasets: [
+                            {
+                              backgroundColor: [
+                                '#41B883',
+                                '#E46651',
+                                '#00D8FF',
+                                '#DD1B16',
+                                '#FF0000',
+                                '#800000',
+                                '#808000',
+                                '#00FF00',
+                                '#008000',
+                                '#808080',
+                                '#0000FF',
+                                '#000080',
+                                '#FF00FF',
+                                '#800080',
+                              ],
+                              data: Object.values(extras24Cat).map((x) => x.length),
+                            },
+                          ],
+                        }}
+                      />
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+                <CCol xs={6}>
+                  <CCard className="mb-4 mt-4">
+                    <CCardHeader>Extras pro inscrits par job</CCardHeader>
+                    <CCardBody>
+                      <CChartDoughnut
+                        data={{
+                          labels: Object.keys(extras24Job),
+                          datasets: [
+                            {
+                              backgroundColor: [
+                                '#41B883',
+                                '#E46651',
+                                '#00D8FF',
+                                '#DD1B16',
+                                '#FF0000',
+                                '#800000',
+                                '#808000',
+                                '#00FF00',
+                                '#008000',
+                                '#808080',
+                                '#0000FF',
+                                '#000080',
+                                '#FF00FF',
+                                '#800080',
+                              ],
+                              data: Object.values(extras24Job).map((x) => x.length),
+                            },
+                          ],
+                        }}
+                      />
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+              <CRow>
+                <CCol xs={6}>
+                  <CCard className="mb-4 mt-4">
+                    <CCardHeader>Extras inscrits par Département</CCardHeader>
+                    <CCardBody>
+                      <CChartDoughnut
+                        data={{
+                          labels: Object.keys(extras24Dep),
+                          datasets: [
+                            {
+                              backgroundColor: [
+                                '#41B883',
+                                '#E46651',
+                                '#00D8FF',
+                                '#DD1B16',
+                                '#FF0000',
+                                '#800000',
+                                '#808000',
+                                '#00FF00',
+                                '#008000',
+                                '#808080',
+                                '#0000FF',
+                                '#000080',
+                                '#FF00FF',
+                                '#800080',
+                              ],
+                              data: Object.values(extras24Dep).map((x) => x.length),
+                            },
+                          ],
+                        }}
+                      />
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+            </>
           )}
         </>
       )}
@@ -433,6 +510,41 @@ const ExtrasPro = () => {
                             '#800080',
                           ],
                           data: Object.values(extrasSemaineJob).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasSemaineDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasSemaineDep).map((x) => x.length),
                         },
                       ],
                     }}
@@ -518,6 +630,41 @@ const ExtrasPro = () => {
               </CCard>
             </CCol>
           </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasMoisDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasMoisDep).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
         </>
       )}
       {mode == 3 && (
@@ -587,6 +734,41 @@ const ExtrasPro = () => {
                             '#800080',
                           ],
                           data: Object.values(extrasAllJob).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasAllDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasAllDep).map((x) => x.length),
                         },
                       ],
                     }}

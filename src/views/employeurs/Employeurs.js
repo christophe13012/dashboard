@@ -11,6 +11,7 @@ import {
 import { getMainDefinition } from '@apollo/client/utilities'
 import { WebSocketLink } from '@apollo/client/link/ws'
 import { TailSpin } from 'react-loader-spinner'
+import { departement } from 'src/utils/utils.js'
 
 import { CNav, CNavItem, CNavLink, CCol, CCard, CCardHeader, CCardBody, CRow } from '@coreui/react'
 import { CChartDoughnut } from '@coreui/react-chartjs'
@@ -30,6 +31,11 @@ const WidgetsBrand = lazy(() => import('../widgets/WidgetsBrand.js'))
 
 const Employeurs = () => {
   const [mode, setMode] = useState(0)
+  const [actifs, setActifs] = useState([])
+  const [extras24Dep, setExtras24Dep] = useState([])
+  const [extrasSemaineDep, setExtrasSemaineDep] = useState([])
+  const [extrasMoisDep, setExtrasMoisDep] = useState([])
+  const [extrasAllDep, setExtrasAllDep] = useState([])
   const [extras24, setExtras24] = useState([])
   const [extras24Cat, setExtras24Cat] = useState([])
   const [extras24Job, setExtras24Job] = useState([])
@@ -299,6 +305,7 @@ const Employeurs = () => {
             query {
               user(where: { type: { _eq: "EMPLOYER" } }, limit: 10000) {
                 id
+                postalCode
                 category
                 company {
                   id
@@ -308,6 +315,18 @@ const Employeurs = () => {
           `,
         })
         .then((result) => {
+          const actifsRef = ref(db, 'checkStatus')
+          onValue(actifsRef, (snapshot) => {
+            const data = snapshot.val()
+            const comptesActifs = []
+            Object.keys(data).forEach((x) => {
+              if (data[x].status) {
+                comptesActifs.push({ uid: x, type: data[x].type })
+              }
+            })
+            console.log('comptesActifs', comptesActifs)
+            setActifs(comptesActifs)
+          })
           const usersInWork = result.data.user
           const usersListRef = ref(db, 'usersList')
           onValue(usersListRef, (snapshot) => {
@@ -350,6 +369,37 @@ const Employeurs = () => {
             setExtrasSemaine(usersInWorkSemaine)
             setExtrasMois(usersInWorkMois)
             setExtrasAll(usersInWorkAll)
+
+            const groupBydep24 = usersInWork24.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+            const groupBydepSemaine = usersInWorkSemaine.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepMois = usersInWorkMois.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepAll = usersInWorkAll.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
             const groupByCategory24 = usersInWork24.reduce((group, product) => {
               const { category } = product
               group[category] = group[category] ?? []
@@ -378,6 +428,10 @@ const Employeurs = () => {
             setExtrasSemaineCat(groupByCategorySemaine)
             setExtrasMoisCat(groupByCategoryMois)
             setExtrasAllCat(groupByCategoryAll)
+            setExtras24Dep(groupBydep24)
+            setExtrasSemaineDep(groupBydepSemaine)
+            setExtrasMoisDep(groupBydepMois)
+            setExtrasAllDep(groupBydepAll)
           })
         })
       setTimeout(() => {
@@ -509,6 +563,39 @@ const Employeurs = () => {
                             '#800080',
                           ],
                           data: Object.values(extras24Cat).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extras24Dep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extras24Dep).map((x) => x.length),
                         },
                       ],
                     }}
@@ -715,6 +802,39 @@ const Employeurs = () => {
                 </CCardBody>
               </CCard>
             </CCol>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasSemaineDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasSemaineDep).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
           </CRow>
           <CRow>
             <CCol xs={6}>
@@ -902,6 +1022,39 @@ const Employeurs = () => {
                             '#800080',
                           ],
                           data: Object.values(extrasMoisCat).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasMoisDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasMoisDep).map((x) => x.length),
                         },
                       ],
                     }}
@@ -1103,6 +1256,39 @@ const Employeurs = () => {
                 </CCardBody>
               </CCard>
             </CCol>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasAllDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasAllDep).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
           </CRow>
           <CRow>
             <CCol xs={6}>
@@ -1269,6 +1455,55 @@ const Employeurs = () => {
             </div>
             <div className="mt-4">Nombre offres enregistrées : {offers.length}</div>
             <div className="mt-4">Nombre offres validées : {offersValidated.length}</div>
+            <div className="mt-4">Nombre comptes actifs : {actifs.length}</div>
+            <div className="mt-4">
+              Actifs IOS:{' '}
+              {
+                actifs.filter((x) =>
+                  [
+                    'com.unextra.unextraapp.subscribe',
+                    'com.unextra.unextraapp.flasher',
+                    'com.unextra.unextraapp.pro',
+                  ].includes(x.type),
+                ).length
+              }
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Flash:{' '}
+              {actifs.filter((x) => ['com.unextra.unextraapp.flasher'].includes(x.type)).length}
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Actifs classique:{' '}
+              {actifs.filter((x) => ['com.unextra.unextraapp.subscribe'].includes(x.type)).length}
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Actifs pro:{' '}
+              {actifs.filter((x) => ['com.unextra.unextraapp.pro'].includes(x.type)).length}
+            </div>
+            <div className="mt-4">
+              Actifs Android:{' '}
+              {
+                actifs.filter((x) =>
+                  ['unextra.abonnement', 'unextra.pro', 'unextra.flash'].includes(x.type),
+                ).length
+              }
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Flash: {actifs.filter((x) => ['unextra.flash'].includes(x.type)).length}
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Actifs classique:{' '}
+              {actifs.filter((x) => ['unextra.abonnement'].includes(x.type)).length}
+            </div>
+            <div className="mt-1" style={{ fontSize: 14 }}>
+              Actifs pro: {actifs.filter((x) => ['unextra.pro'].includes(x.type)).length}
+            </div>
+            <div className="mt-4">
+              Actifs abonné depuis web: {actifs.filter((x) => x.type == 'Abonnement web').length}
+            </div>
+            <div className="mt-1">
+              Actifs flash depuis web: {actifs.filter((x) => x.type == 'Flash web').length}
+            </div>
           </CCol>
         </CRow>
       )}

@@ -8,6 +8,7 @@ import { CNav, CNavItem, CNavLink, CCol, CCard, CCardHeader, CCardBody, CRow } f
 import { CChartDoughnut } from '@coreui/react-chartjs'
 
 import { getDatabase, ref, onValue } from 'firebase/database'
+import { departement } from 'src/utils/utils.js'
 
 export const GRAPHQL_ENDPOINT = 'https://unextra.hasura.app/v1/graphql'
 export const GRAPHQL_SUBSCRIPTIONS = 'wss://unextra.hasura.app/v1/graphql'
@@ -25,15 +26,19 @@ const Extras = () => {
   const [extras24, setExtras24] = useState([])
   const [extras24Cat, setExtras24Cat] = useState([])
   const [extras24Job, setExtras24Job] = useState([])
+  const [extras24Dep, setExtras24Dep] = useState([])
   const [extrasSemaine, setExtrasSemaine] = useState([])
   const [extrasSemaineCat, setExtrasSemaineCat] = useState([])
   const [extrasSemaineJob, setExtrasSemaineJob] = useState([])
+  const [extrasSemaineDep, setExtrasSemaineDep] = useState([])
   const [extrasMois, setExtrasMois] = useState([])
   const [extrasMoisCat, setExtrasMoisCat] = useState([])
   const [extrasMoisJob, setExtrasMoisJob] = useState([])
+  const [extrasMoisDep, setExtrasMoisDep] = useState([])
   const [extrasAll, setExtrasAll] = useState([])
   const [extrasAllCat, setExtrasAllCat] = useState([])
   const [extrasAllJob, setExtrasAllJob] = useState([])
+  const [extrasAllDep, setExtrasAllDep] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,6 +72,7 @@ const Extras = () => {
                 idExtra
                 category
                 gender
+                postalCode
                 company {
                   id
                   latitude
@@ -77,6 +83,8 @@ const Extras = () => {
         })
         .then((result) => {
           const usersInWork = result.data.user
+          console.log('usersInWork', usersInWork)
+
           const today = new Date()
           const yesterday = new Date()
           yesterday.setDate(yesterday.getDate() - 1)
@@ -144,6 +152,37 @@ const Extras = () => {
               group[category].push(product)
               return group
             }, {})
+            const groupBydep24 = usersInWork24.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+            const groupBydepSemaine = usersInWorkSemaine.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepMois = usersInWorkMois.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
+            const groupBydepAll = usersInWorkAll.reduce((group, product) => {
+              const { postalCode } = product
+              const dep = postalCode ? postalCode.toString().substring(0, 2) : 'nc'
+              group[departement[dep]] = group[departement[dep]] ?? []
+              group[departement[dep]].push(product)
+              return group
+            }, {})
+
             const groupByCategorySemaine = usersInWorkSemaine.reduce((group, product) => {
               const { category } = product
               group[category] = group[category] ?? []
@@ -188,12 +227,16 @@ const Extras = () => {
             }, {})
             setExtras24Job(groupByJob24)
             setExtras24Cat(groupByCategory24)
+            setExtras24Dep(groupBydep24)
             setExtrasSemaineJob(groupByJobSemaine)
             setExtrasSemaineCat(groupByCategorySemaine)
+            setExtrasSemaineDep(groupBydepSemaine)
             setExtrasMoisJob(groupByJobMois)
             setExtrasMoisCat(groupByCategoryMois)
+            setExtrasMoisDep(groupBydepMois)
             setExtrasAllJob(groupByJobAll)
             setExtrasAllCat(groupByCategoryAll)
+            setExtrasAllDep(groupBydepAll)
           })
         })
       setTimeout(() => {
@@ -360,6 +403,41 @@ const Extras = () => {
               </CCard>
             </CCol>
           </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extras24Dep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extras24Dep).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
         </>
       )}
       {mode == 1 && (
@@ -429,6 +507,41 @@ const Extras = () => {
                             '#800080',
                           ],
                           data: Object.values(extrasSemaineJob).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasSemaineDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasSemaineDep).map((x) => x.length),
                         },
                       ],
                     }}
@@ -514,6 +627,41 @@ const Extras = () => {
               </CCard>
             </CCol>
           </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasMoisDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasMoisDep).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
         </>
       )}
       {mode == 3 && (
@@ -583,6 +731,41 @@ const Extras = () => {
                             '#800080',
                           ],
                           data: Object.values(extrasAllJob).map((x) => x.length),
+                        },
+                      ],
+                    }}
+                  />
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol xs={6}>
+              <CCard className="mb-4 mt-4">
+                <CCardHeader>Extras inscrits par Département</CCardHeader>
+                <CCardBody>
+                  <CChartDoughnut
+                    data={{
+                      labels: Object.keys(extrasAllDep),
+                      datasets: [
+                        {
+                          backgroundColor: [
+                            '#41B883',
+                            '#E46651',
+                            '#00D8FF',
+                            '#DD1B16',
+                            '#FF0000',
+                            '#800000',
+                            '#808000',
+                            '#00FF00',
+                            '#008000',
+                            '#808080',
+                            '#0000FF',
+                            '#000080',
+                            '#FF00FF',
+                            '#800080',
+                          ],
+                          data: Object.values(extrasAllDep).map((x) => x.length),
                         },
                       ],
                     }}
